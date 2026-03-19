@@ -1,29 +1,50 @@
 import prisma from "../lib/prisma";
 
-interface GetOrdersParams {
-  customerId?: string | number;
-  restaurantId?: string | number;
+interface CreateOrderParams {
+  customerId: number;
+  restaurantId: number;
+  items: {
+    menuId: number;
+    quantity: number;
+    price: number;
+  }[];
 }
 
-export async function getOrders({ customerId, restaurantId }: GetOrdersParams) {
-  const where: any = {};
-
-  if (customerId) {
-    where.customerId = Number(customerId);
+export async function createOrder({
+  customerId,
+  restaurantId,
+  items,
+}: CreateOrderParams) {
+  if (!customerId || !restaurantId || !items || items.length === 0) {
+    throw new Error("Datos incompletos para crear la orden");
   }
 
-  if (restaurantId) {
-    where.restaurantId = Number(restaurantId);
-  }
+  // 🔹 calcular total
+  const total = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  );
 
-  return prisma.order.findMany({
-    where,
-    orderBy: { id: "desc" },
+  // 🔹 crear orden
+  const order = await prisma.order.create({
+    data: {
+      customerId,
+      restaurantId,
+      total,
+      status: "PENDING",
+      items: {
+        create: items.map((item) => ({
+          menuId: item.menuId,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+      },
+    },
     include: {
-      customer: true,
+      items: true,
       restaurant: true,
-      payments: true,
-      notifications: true,
     },
   });
+
+  return order;
 }
