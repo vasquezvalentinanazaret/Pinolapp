@@ -1,24 +1,44 @@
-import axios from "axios";
+// services/orderService.ts
 
-export const getOrders = async (customerId?: number, restaurantId?: number) => {
-  let url = "/api/orders";
-  if (customerId) url += `?customerId=${customerId}`;
-  if (restaurantId) url += `?restaurantId=${restaurantId}`;
-  const res = await axios.get(url);
-  return res.data;
-};
+import prisma from "@/lib/prisma";
 
-export const updateOrderStatus = async (orderId: number, status: string) => {
-  const res = await axios.post("/api/updateOrderStatus", { orderId, status });
-  return res.data;
-};
+export async function getOrders(filters?: {
+  customerId?: number;
+  restaurantId?: number;
+}) {
+  if (!filters?.customerId && !filters?.restaurantId) {
+    return prisma.order.findMany({
+      orderBy: { id: "desc" },
+      include: {
+        customer: true,
+        restaurant: true,
+        payments: true,
+        notifications: true,
+      },
+    });
+  }
 
-export const assignDriver = async (orderId: number, driverId: number) => {
-  const res = await axios.post("/api/assignDriver", { orderId, driverId });
-  return res.data;
-};
+  if (filters.customerId) {
+    return prisma.order.findMany({
+      where: { customerId: filters.customerId },
+      orderBy: { id: "desc" },
+      include: {
+        restaurant: true,
+        payments: true,
+        notifications: true,
+      },
+    });
+  }
 
-export const getOrderHistory = async (customerId: number) => {
-  const res = await axios.get(`/api/orderHistory?customerId=${customerId}`);
-  return res.data;
-};
+  if (filters.restaurantId) {
+    return prisma.order.findMany({
+      where: { restaurantId: filters.restaurantId },
+      orderBy: { id: "desc" },
+      include: {
+        customer: true,
+        payments: true,
+        notifications: true,
+      },
+    });
+  }
+}
