@@ -1,5 +1,5 @@
 const categories = [
-  { name: "Restaurantes", icon: "🍽️" },
+  { name: "Restaurantes", icon: "🍔" },
   { name: "Rápido", icon: "⚡" },
   { name: "Farmacias", icon: "💊" },
   { name: "Mercados", icon: "🛒" },
@@ -7,14 +7,14 @@ const categories = [
 
 export default function CategoryGrid() {
   return (
-    <div className="grid grid-cols-4 gap-4">
-      {categories.map((cat) => (
+    <div className="grid grid-cols-2 gap-4">
+      {categories.map((cat, index) => (
         <div
-          key={cat.name}
-          className="flex flex-col items-center bg-white p-3 rounded-xl shadow"
+          key={index}
+          className="bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center hover:scale-105 transition"
         >
-          <div className="text-2xl">{cat.icon}</div>
-          <p className="text-sm mt-2">{cat.name}</p>
+          <span className="text-3xl">{cat.icon}</span>
+          <p className="mt-2 font-semibold">{cat.name}</p>
         </div>
       ))}
     </div>
