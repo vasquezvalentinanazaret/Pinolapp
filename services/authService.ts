@@ -1,20 +1,49 @@
-import axios from "axios";
+import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
-export const register = async (email: string, password: string, name: string) => {
-  const res = await axios.post("/api/auth", {
-    action: "register",
-    email,
-    password,
-    name,
-  });
-  return res.data;
-};
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
-export const login = async (email: string, password: string) => {
-  const res = await axios.post("/api/auth", {
-    action: "login",
-    email,
-    password,
+export async function registerUser({ email, password, name }: any) {
+  const existing = await prisma.customer.findUnique({ where: { email } });
+
+  if (existing) {
+    throw new Error("EMAIL_EXISTS");
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const customer = await prisma.customer.create({
+    data: {
+      name: name || "Usuario",
+      email,
+      password: hashedPassword,
+      phone: "",
+      address: "",
+    },
   });
-  return res.data;
-};
+
+  return customer;
+}
+
+export async function loginUser({ email, password }: any) {
+  const customer = await prisma.customer.findUnique({ where: { email } });
+
+  if (!customer) {
+    throw new Error("USER_NOT_FOUND");
+  }
+
+  const valid = await bcrypt.compare(password, customer.password);
+
+  if (!valid) {
+    throw new Error("INVALID_CREDENTIALS");
+  }
+
+  const token = jwt.sign(
+    { id: customer.id, email: customer.email },
+    JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  return { token, customer };
+}
