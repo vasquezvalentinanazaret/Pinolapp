@@ -4,49 +4,74 @@ import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
-export async function register({ email, password, name }: any) {
-  const existing = await prisma.customer.findUnique({ where: { email } });
-
-  if (existing) {
-    throw new Error("EMAIL_EXISTS");
-  }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  return prisma.customer.create({
-    data: {
-      name: name || "Usuario",
-      email,
-      password: hashedPassword,
-      role: "customer",
-      phone: "",
-      address: "",
-    },
-  });
+interface AuthParams {
+  action: "register" | "login";
+  email: string;
+  password: string;
+  name?: string;
 }
 
-export async function login({ email, password }: any) {
-  const customer = await prisma.customer.findUnique({ where: { email } });
-
-  if (!customer) {
-    throw new Error("USER_NOT_FOUND");
+export async function handleAuth({ action, email, password, name }: AuthParams) {
+  if (!action || !email || !password) {
+    throw new Error("Faltan campos obligatorios");
   }
 
-  const valid = await bcrypt.compare(password, customer.password);
+  // 🔹 REGISTRO
+  if (action === "register") {
+    const existing = await prisma.customer.findUnique({
+      where: { email },
+    });
 
-  if (!valid) {
-    throw new Error("INVALID_CREDENTIALS");
+    if (existing) {
+      throw new Error("El email ya está registrado");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const customer = await prisma.customer.create({
+      data: {
+        name: name || "Usuario",
+        email,
+        password: hashedPassword,
+        phone: "",
+        address: "",
+      },
+    });
+
+    return {
+      message: "Registro exitoso",
+      customer,
+    };
   }
 
-  const token = jwt.sign(
-    {
-      id: customer.id,
-      email: customer.email,
-      role: customer.role,
-    },
-    JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+  // 🔹 LOGIN
+  if (action === "login") {
+    const customer = await prisma.customer.findUnique({
+      where: { email },
+    });
 
-  return { token, customer };
+    if (!customer) {
+      throw new Error("Cliente no encontrado");
+    }
+
+    const valid = await bcrypt.compare(password, customer.password);
+
+    if (!valid) {
+      throw new Error("Credenciales inválidas");
+    }
+
+    const token = jwt.sign(
+      { id: customer.id, email: customer.email },
+      JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return {
+      message: "Login exitoso",
+      token,
+      customer,
+    };
+  }
+
+  throw new Error("Acción inválida");
 }
