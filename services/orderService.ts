@@ -1,39 +1,29 @@
 import prisma from "../lib/prisma";
 
-export async function getOrders({ customerId, restaurantId }: any) {
-  if (!customerId && !restaurantId) {
-    return prisma.order.findMany({
-      orderBy: { id: "desc" },
-      include: {
-        customer: true,
-        restaurant: true,
-        payments: true,
-        notifications: true,
-      },
-    });
-  }
+interface GetOrdersParams {
+  customerId?: string | number;
+  restaurantId?: string | number;
+}
+
+export async function getOrders({ customerId, restaurantId }: GetOrdersParams) {
+  const where: any = {};
 
   if (customerId) {
-    return prisma.order.findMany({
-      where: { customerId: Number(customerId) },
-      orderBy: { id: "desc" },
-      include: {
-        restaurant: true,
-        payments: true,
-        notifications: true,
-      },
-    });
+    where.customerId = Number(customerId);
   }
 
   if (restaurantId) {
-    return prisma.order.findMany({
-      where: { restaurantId: Number(restaurantId) },
-      orderBy: { id: "desc" },
-      include: {
-        customer: true,
-        payments: true,
-        notifications: true,
-      },
-    });
+    where.restaurantId = Number(restaurantId);
   }
+
+  return prisma.order.findMany({
+    where,
+    orderBy: { id: "desc" },
+    include: {
+      customer: true,
+      restaurant: true,
+      payments: true,
+      notifications: true,
+    },
+  });
 }
