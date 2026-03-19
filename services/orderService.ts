@@ -1,12 +1,7 @@
-// services/orderService.ts
+import prisma from "../lib/prisma";
 
-import prisma from "@/lib/prisma";
-
-export async function getOrders(filters?: {
-  customerId?: number;
-  restaurantId?: number;
-}) {
-  if (!filters?.customerId && !filters?.restaurantId) {
+export async function getOrders({ customerId, restaurantId }) {
+  if (!customerId && !restaurantId) {
     return prisma.order.findMany({
       orderBy: { id: "desc" },
       include: {
@@ -18,9 +13,9 @@ export async function getOrders(filters?: {
     });
   }
 
-  if (filters.customerId) {
+  if (customerId) {
     return prisma.order.findMany({
-      where: { customerId: filters.customerId },
+      where: { customerId: Number(customerId) },
       orderBy: { id: "desc" },
       include: {
         restaurant: true,
@@ -30,9 +25,9 @@ export async function getOrders(filters?: {
     });
   }
 
-  if (filters.restaurantId) {
+  if (restaurantId) {
     return prisma.order.findMany({
-      where: { restaurantId: filters.restaurantId },
+      where: { restaurantId: Number(restaurantId) },
       orderBy: { id: "desc" },
       include: {
         customer: true,
