@@ -8,39 +8,42 @@ export async function register({ email, password, name }: any) {
   const existing = await prisma.customer.findUnique({ where: { email } });
 
   if (existing) {
-    throw new Error("El email ya está registrado");
+    throw new Error("EMAIL_EXISTS");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const customer = await prisma.customer.create({
+  return prisma.customer.create({
     data: {
       name: name || "Usuario",
       email,
       password: hashedPassword,
+      role: "customer",
       phone: "",
       address: "",
     },
   });
-
-  return customer;
 }
 
 export async function login({ email, password }: any) {
   const customer = await prisma.customer.findUnique({ where: { email } });
 
   if (!customer) {
-    throw new Error("Cliente no encontrado");
+    throw new Error("USER_NOT_FOUND");
   }
 
   const valid = await bcrypt.compare(password, customer.password);
 
   if (!valid) {
-    throw new Error("Credenciales inválidas");
+    throw new Error("INVALID_CREDENTIALS");
   }
 
   const token = jwt.sign(
-    { id: customer.id, email: customer.email },
+    {
+      id: customer.id,
+      email: customer.email,
+      role: customer.role,
+    },
     JWT_SECRET,
     { expiresIn: "7d" }
   );
