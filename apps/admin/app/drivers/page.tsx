@@ -1,12 +1,5 @@
-type Driver = {
-  id: number;
-  user: {
-    email: string;
-  };
-};
-
 export default function DriversPage() {
-  const drivers: Driver[] = [
+  const drivers = [
     {
       id: 1,
       user: { email: "driver1@test.com" },
@@ -22,14 +15,9 @@ export default function DriversPage() {
       <h1 className="text-2xl font-bold mb-4">Repartidores</h1>
 
       <ul className="space-y-4">
-        {drivers.map((d: Driver) => (
-          <li
-            key={d.id}
-            className="border p-4 rounded shadow"
-          >
-            <h2 className="font-semibold">
-              Driver #{d.id}
-            </h2>
+        {drivers.map((d: any) => (
+          <li key={d.id} className="border p-4 rounded shadow">
+            <h2 className="font-semibold">Driver #{d.id}</h2>
             <p>Email: {d.user.email}</p>
           </li>
         ))}
