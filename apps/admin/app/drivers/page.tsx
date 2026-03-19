@@ -21,4 +21,10 @@ export default function DriversPage() {
         {drivers.map((d: Driver) => (
           <li key={d.id} className="border p-4 rounded shadow">
             <h2 className="font-semibold">Driver #{d.id}</h2>
-            <p>Email: {d.user
+            <p>Email: {d.user.email}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
