@@ -1,6 +1,6 @@
 import prisma from "../lib/prisma";
 
-export async function getOrders({ customerId, restaurantId }) {
+export async function getOrders({ customerId, restaurantId }: any) {
   if (!customerId && !restaurantId) {
     return prisma.order.findMany({
       orderBy: { id: "desc" },
