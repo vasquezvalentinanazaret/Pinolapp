@@ -14,18 +14,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     if (action === "register") {
-      const customer = await register({ email, password, name });
-      return res.status(201).json({ message: "Registro exitoso", customer });
+      const user = await register({ email, password, name });
+      return res.status(201).json({ message: "Registro exitoso", user });
     }
 
     if (action === "login") {
-      const data = await login({ email, password });
-      return res.status(200).json({ message: "Login exitoso", ...data });
+      const result = await login({ email, password });
+      return res.status(200).json(result);
     }
 
     return res.status(400).json({ error: "Acción inválida" });
+
   } catch (error: any) {
-    console.error("Error en /api/auth:", error);
-    return res.status(500).json({ error: error.message || "Error en autenticación" });
+    if (error.message === "EMAIL_EXISTS") {
+      return res.status(400).json({ error: "El email ya está registrado" });
+    }
+
+    if (error.message === "USER_NOT_FOUND") {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    if (error.message === "INVALID_CREDENTIALS") {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+
+    return res.status(500).json({ error: "Error en autenticación" });
   }
 }
