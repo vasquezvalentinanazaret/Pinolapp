@@ -1,14 +1,14 @@
-import prisma from "@/lib/prisma";
+import prisma from "../lib/prisma";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
-export async function registerUser({ email, password, name }: any) {
+export async function register({ email, password, name }: any) {
   const existing = await prisma.customer.findUnique({ where: { email } });
 
   if (existing) {
-    throw new Error("EMAIL_EXISTS");
+    throw new Error("El email ya está registrado");
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -26,17 +26,17 @@ export async function registerUser({ email, password, name }: any) {
   return customer;
 }
 
-export async function loginUser({ email, password }: any) {
+export async function login({ email, password }: any) {
   const customer = await prisma.customer.findUnique({ where: { email } });
 
   if (!customer) {
-    throw new Error("USER_NOT_FOUND");
+    throw new Error("Cliente no encontrado");
   }
 
   const valid = await bcrypt.compare(password, customer.password);
 
   if (!valid) {
-    throw new Error("INVALID_CREDENTIALS");
+    throw new Error("Credenciales inválidas");
   }
 
   const token = jwt.sign(
