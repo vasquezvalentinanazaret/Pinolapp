@@ -1,19 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getOrders } from "../../services/orderService";
-import { requireAuth } from "../../lib/auth";
 
-async function handler(req: any, res: NextApiResponse) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const user = req.user;
-
-    const orders = await getOrders({
-      customerId: user.id,
-    });
-
+    const orders = await getOrders(req.query);
     return res.status(200).json(orders);
   } catch (error) {
+    console.error("Error en /api/orders:", error);
     return res.status(500).json({ error: "Error al obtener órdenes" });
   }
 }
-
-export default requireAuth(handler);
