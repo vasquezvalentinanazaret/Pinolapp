@@ -1,12 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getOrders } from "../../services/orderService";
+import { handleAuth } from "../../services/authService";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const orders = await getOrders(req.query);
-    return res.status(200).json(orders);
-  } catch (error) {
-    console.error("Error en /api/orders:", error);
-    return res.status(500).json({ error: "Error al obtener órdenes" });
+    if (req.method !== "POST") {
+      return res.status(405).json({ error: "Método no permitido" });
+    }
+
+    const result = await handleAuth(req.body);
+
+    return res.status(200).json(result);
+  } catch (error: any) {
+    console.error("Error en /api/auth:", error);
+
+    return res.status(400).json({
+      error: error.message || "Error en autenticación",
+    });
   }
 }
