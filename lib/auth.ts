@@ -1,17 +1,11 @@
 import jwt from "jsonwebtoken";
 
-export function signToken(payload: object) {
-  return jwt.sign(payload, process.env.JWT_SECRET!, { expiresIn: "7d" });
-}
+const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
 
 export function verifyToken(token: string) {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET!);
-  } catch {
-    return null;
+    return jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    throw new Error("Token inválido");
   }
-}
-
-export function decodeToken(token: string) {
-  return jwt.decode(token);
 }
