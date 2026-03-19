@@ -9,4 +9,4 @@ Plataforma de delivery construida con **Next.js**, **TypeScript**, **Prisma**, y
 ```bash
 git clone https://github.com/pinolapp/pinolapp.git
 cd pinolapp
-npm install
+npm instal
