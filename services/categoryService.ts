@@ -14,3 +14,4 @@ export const removeFromCart = async (customerId: number, itemId: number) => {
   const res = await axios.delete("/api/cart", { data: { customerId, itemId } });
   return res.data;
 };
+ 
