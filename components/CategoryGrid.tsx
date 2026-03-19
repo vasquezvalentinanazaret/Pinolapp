@@ -1,35 +1,21 @@
-import Link from "next/link";
-
 const categories = [
-  {
-    name: "Restaurantes",
-    emoji: "🍔",
-    href: "/restaurants",
-  },
-  {
-    name: "Farmacias",
-    emoji: "💊",
-    href: "/pharmacy",
-  },
-  {
-    name: "Mercados",
-    emoji: "🛒",
-    href: "/markets",
-  },
+  { name: "Restaurantes", icon: "🍽️" },
+  { name: "Rápido", icon: "⚡" },
+  { name: "Farmacias", icon: "💊" },
+  { name: "Mercados", icon: "🛒" },
 ];
 
 export default function CategoryGrid() {
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-4 gap-4">
       {categories.map((cat) => (
-        <Link href={cat.href} key={cat.name}>
-          <div className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center justify-center hover:shadow-lg transition cursor-pointer">
-            <span className="text-4xl">{cat.emoji}</span>
-            <p className="mt-2 font-semibold text-gray-700">
-              {cat.name}
-            </p>
-          </div>
-        </Link>
+        <div
+          key={cat.name}
+          className="flex flex-col items-center bg-white p-3 rounded-xl shadow"
+        >
+          <div className="text-2xl">{cat.icon}</div>
+          <p className="text-sm mt-2">{cat.name}</p>
+        </div>
       ))}
     </div>
   );
