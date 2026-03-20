@@ -1,17 +1,21 @@
 import Stripe from "stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2022-11-15",
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
+  apiVersion: "2024-06-20",
 });
 
-export async function createPaymentIntent(amount: number, currency = "usd") {
-  return stripe.paymentIntents.create({
-    amount,
-    currency,
-    payment_method_types: ["card"],
-  });
-}
+// 💳 Crear pago
+export async function createPayment(amount: number) {
+  if (!amount || amount <= 0) {
+    throw new Error("Monto inválido");
+  }
 
-export async function confirmPayment(paymentIntentId: string) {
-  return stripe.paymentIntents.confirm(paymentIntentId);
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: Math.round(amount * 100), // Stripe usa centavos
+    currency: "usd",
+  });
+
+  return {
+    clientSecret: paymentIntent.client_secret,
+  };
 }
