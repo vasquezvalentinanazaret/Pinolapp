@@ -10,6 +10,7 @@ interface CreateOrderParams {
   }[];
 }
 
+// ✅ Crear orden
 export async function createOrder({
   customerId,
   restaurantId,
@@ -19,13 +20,11 @@ export async function createOrder({
     throw new Error("Datos incompletos para crear la orden");
   }
 
-  // 🔹 calcular total
   const total = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
 
-  // 🔹 crear orden
   const order = await prisma.order.create({
     data: {
       customerId,
@@ -42,9 +41,29 @@ export async function createOrder({
     },
     include: {
       items: true,
-      restaurant: true,
     },
   });
 
   return order;
+}
+
+// ✅ Obtener todas las órdenes
+export async function getOrders() {
+  return await prisma.order.findMany({
+    include: {
+      items: true,
+      payment: true,
+    },
+  });
+}
+
+// ✅ Actualizar estado
+export async function updateOrderStatus(
+  orderId: number,
+  status: string
+) {
+  return await prisma.order.update({
+    where: { id: orderId },
+    data: { status },
+  });
 }
