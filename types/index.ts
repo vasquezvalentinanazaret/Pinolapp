@@ -1,10 +1,11 @@
 export * from "./auth";
-export * from "./cart";
+export * from "./Cart";
 export * from "./order";
 export * from "./restaurant";
 export * from "./menu";
 export * from "./driver";
-export * from "./customer";
-export * from "./payment";
+export * from "./Customers";   // ✅ correcto (mayúscula)
+export * from "./Payment";     // ✅ correcto (mayúscula)
 export * from "./notification";
 export * from "./review";
+export * from "./user";
