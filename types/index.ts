@@ -4,8 +4,8 @@ export * from "./order";
 export * from "./restaurant";
 export * from "./menu";
 export * from "./driver";
-export * from "./Customers";   // ✅ correcto (mayúscula)
-export * from "./Payment";     // ✅ correcto (mayúscula)
+export * from "./Customers";
+export * from "./Payment";
 export * from "./notification";
 export * from "./review";
 export * from "./user";
